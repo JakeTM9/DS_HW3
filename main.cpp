@@ -136,9 +136,20 @@ void UserInterface::TaskInput() {
 	vector <string> userArray;
 	string choice;
 	int dataIndex;
+	bool validChoice = true;
 
-	cout << "How many tasks are to be completed?\n";
-	cin >> dataIndex; // USER ENTERS HOW MANY TASKS MUST BE COMPLETE 
+	//ENSURE THAT THE CHOICE ENTERED IS VALID. IF IT IS NOT, DO NOT MOVE ON UNTIL USER INPUT IS VALID
+	while (validChoice) {
+		cout << "How many tasks are to be completed?\n";
+		cin >> dataIndex; // USER ENTERS HOW MANY TASKS MUST BE COMPLETE 
+
+		if (dataIndex <= 1) {
+			cout << "ERROR : TASK NUMBER MUST BE GREATER THAN 1!\n";
+		}
+		else {
+			validChoice = false;
+		}
+	}
 
 	//USER ENTERS THE AMOUNT OF TASKS THEY SPECIFIED. THIS IS PLACED IN AN ARRAY.
 	for (int i = 0; i < dataIndex; i++) 
