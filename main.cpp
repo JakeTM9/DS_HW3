@@ -8,23 +8,25 @@
 #include <list>
 using namespace std;
 
-//Header Node (I like calling them Node because it helps me think and code 
-//-> Can switch to Header classname Later
-class Node
+//The "Node" Class that is a piece of data
+class Task
 {
 public:
-	Node(); //constructor
-	Node(string nameInput);
+	Task(); //constructor
+	Task(string nameInput);
 	string name = "";
-	Node* next;
+	Task* next = nullptr;
 };
 
-Node::Node() { Node* next = NULL; };
+Task::Task() 
+{ 
+	next = nullptr;
+}
 
-Node::Node(string nameInput)
+Task::Task(string nameInput)
 {
 	name = nameInput;
-	Node* next = NULL;
+	Task* next = nullptr;
 }
 
 
@@ -32,80 +34,82 @@ Node::Node(string nameInput)
 class Digraph {
 public:
 	Digraph(); //constructor
-	Digraph(int size, vector <string> headerData); //constructor
-	void Destructor();
-	void EdgeAddition(string head,string newLink); //adds a new Node newlink to the head node in the headerNodeArray
-//	void EdgeDeletion();
+	Digraph(int size, vector <string> TaskData); //constructor
+	void Destructor(); //TODO
+	void EdgeAddition(string head,string newLink); //adds a new Task newlink to the end of the head Task's LL
+//	void EdgeDeletion(); TODO
 	
-//	void TopologicalSorting(); //MUST USE DFT FOUND IN BOOK
-//	void AcycliCheck();
+//	void TopologicalSorting(); //MUST USE DFT FOUND IN BOOK //TODO
+//	void AcycliCheck(); //TODO
 
-	void PrintAllHeaders();//prints all headers
+	void PrintAllTasks();//prints all Tasks
 
-	Node GetHeaderByName(string name); //returns header Node given a string
-	vector<Node> headerNodeArray;
-	int headerSize;
+	vector<Task> TaskArray; //array of unique Header Tasks (for the LL)
+	int TaskSize; // the size of taskArray 
 
 };
 
-//Creates Empty Header Node Array
+//Defines TaskSize as 0
 Digraph::Digraph() 
 { 
-	headerSize = 0;
+	TaskSize = 0;
 }
 
-// Creates Array of Header Nodes From User Input For Class Digraph
-Digraph::Digraph( int size, vector <string> headerData) 
+// Creates Array of Task From User Input For Class Digraph
+Digraph::Digraph( int size, vector <string> TaskData) 
 {
 
-	headerSize = size;
+	TaskSize = size;
 
 	for (int i = 0; i < size; i++) 
 	{
-		Node tempNode = Node(headerData.at(i));
-		headerNodeArray.push_back(tempNode);
-
+		Task tempTask = Task(TaskData.at(i));
+		TaskArray.push_back(tempTask);
 	}
 
-	//TODO: Delete tempNode Here
+	//TODO: Delete tempTask Here
 	
 }
 
-//prints all header nodes
-void Digraph::PrintAllHeaders()
+//prints all Task Tasks
+void Digraph::PrintAllTasks()
 {
-	for (int i = 0; i < headerSize; i++)
+	for (int i = 0; i < TaskSize -1; i++)
 	{
-		cout << headerNodeArray.at(i).name + ", ";
+		cout << TaskArray.at(i).name + ", ";
 	}
+	cout << TaskArray.at(TaskSize-1).name;
+
 }
 
-//basic Linked List Iteration-> once head/temp hits a NULL it adds newLink to the end of the Linked List
+//basic Linked List Iteration of a new Task into the Task in the array 
 void Digraph::EdgeAddition(string head, string newLink)
 {
-	for (int i = 0; i < headerSize; i++)
+	for (int i = 0; i < TaskSize; i++)
 	{
-		if (head == headerNodeArray.at(i).name)
+		if (head == TaskArray.at(i).name)
 		{
-			headerNodeArray.at(i).next = new Node(newLink);
+			
+			if (TaskArray.at(i).next == NULL)
+			{
+				TaskArray.at(i).next = new Task(newLink);
+			}
+			else 
+			{
+				Task* temp = TaskArray.at(i).next;
+				Task* prev = temp;
+				while (temp->next != nullptr)
+				{
+					if(temp->next != nullptr)
+					{
+						temp = temp->next;
+					}
+				}
+				prev->next = new Task(newLink);
+			}
+				
 		}
 	}
-	//GetHeaderByName(head).next = new Node(newLink);
-/*
-	if (head->next == NULL)
-	{
-		head->next = newLink;
-	}
-	else
-	{
-		Node* temp = head->next;
-		while (temp->next != NULL)
-		{
-			temp = temp->next;
-		}
-		temp->next = newLink;
-	}
-	*/
 }
 
 
@@ -117,7 +121,10 @@ class UserInterface {
 public:
 	UserInterface();
 	void Menu();
-	void UserData();
+	void TaskInput();
+	void RelationInput();
+
+	Digraph d;
 
 private:
 
@@ -125,7 +132,7 @@ private:
 
 UserInterface::UserInterface() {}
 
-void UserInterface::UserData() {
+void UserInterface::TaskInput() {
 	vector <string> userArray;
 	string choice;
 	int dataIndex;
@@ -134,7 +141,8 @@ void UserInterface::UserData() {
 	cin >> dataIndex; // USER ENTERS HOW MANY TASKS MUST BE COMPLETE 
 
 	//USER ENTERS THE AMOUNT OF TASKS THEY SPECIFIED. THIS IS PLACED IN AN ARRAY.
-	for (int i = 0; i < dataIndex; i++) {
+	for (int i = 0; i < dataIndex; i++) 
+	{
 		cout << "Enter task name: ";
 		if (i == 0) cin.ignore();
 		getline(cin, choice, '\n');
@@ -143,73 +151,56 @@ void UserInterface::UserData() {
 
 	//PRINT DATA IN THE RECEiVED ORDER BACK TO THE USER 
 	cout << "\nTasks to be completed include:\n";
-	for (int i = 0; i < dataIndex; i++) {
+	for (int i = 0; i < dataIndex; i++) 
+	{
 		cout << i + 1 << ": " << userArray[i] << endl;
 	}
 
-	//Passes Data to Digraph Class
-	Digraph d = Digraph(dataIndex, userArray);
+	//Initialize Digraph
+	d = Digraph(dataIndex, userArray);
 
-	//Order Relation USER INPUT -------------------------------------------------------------------
+}
 
-	//this chunk here prints how do do input in a user friendly way but requires at least 3 inputs from before, a fallback is given in the else that isnt as good
-	if (d.headerSize > 2)
-	{
-		string s1 = d.headerNodeArray.at(0).name;
-		string s2 = d.headerNodeArray.at(1).name;
-		string s3 = d.headerNodeArray.at(2).name;
-
-		cout << "\nPlease specify an order relation on pairs of tasks.\n\nEXAMPLES:\n\n" + s3 + " " + s1 + "			(indicates that Task:" + s3 + " must precede Task:" + s1 + ") \n" + s2 + " " + s3 + "		(indicates that Task:" + s2 + " must precede Task:" + s3 + ") \n" + s1 + " " + s2 + "		(indicates that Task:" + s3 + " must precede Task:" + s1 + ") \n";
-	}
-	else
-	{
-		cout << "\nspecify an order relation on pairs of tasks, e.g.,\n 3 1 (indicates that Task 3 must precede Task 1) \n 7 5 (indicates that Task 7 must precede Task 5) \n 5 1 (indicates that Task 5 must precede Task 1) \n";
-	}
-	//end chunk
-
-	//this chunk here handles the user input
+void UserInterface::RelationInput()
+{
 	bool exit = false;
 	string tempFrom;
 	string tempTo;
 	string tempExit;
-	vector <string> relationFromData;
-	vector <string> relationToData;
 	while (!exit)
 	{
 		//user input
-		cout << "Relation Goes From: ";
+		cout << endl << "List of Tasks: " << endl;
+		d.PrintAllTasks();
+		cout << endl << "Relation Goes From: ";
 		cin >> tempFrom;
-		relationFromData.push_back(tempFrom);
 		cout << endl << "Relation Goes To: ";
 		cin >> tempTo;
-		relationToData.push_back(tempTo);
-
 		cout << endl << "Enter another Relation? [y/n]:	";
 		cin >> tempExit;
 
-		//get pointers for EdgeAddition
-
-		//add edge
+		//add edge from strings (may have to do some string checking here in the future if we care)
 		d.EdgeAddition(tempFrom, tempTo);
-			
+
 		//check end condition
-		if (tempExit == "y" || tempExit == "yes" || tempExit == "Yes") 
-		{ 
-			exit = false; 
+		if (tempExit == "y" || tempExit == "yes" || tempExit == "Yes")
+		{
+			exit = false;
 		}
-		else 
+		else
 		{
 			exit = true;
 		}
 		cout << endl;
 	}
-
-
 }
 
-void UserInterface::Menu() {
+void UserInterface::Menu() 
+{
 	bool run = true;
-	UserData();
+	TaskInput();
+	RelationInput();
+	//TODO: Destructor, Edge Deletion, Topological Sort, Acylic Check (pretty sure acylic check is ez but not 100%)
 }
 
 // END UI
@@ -225,11 +216,7 @@ int main() {
 	return 0;
 }
 
-class HeaderArray
-{
-public:
 
-};
 
 
 
@@ -245,3 +232,20 @@ public:
 //   4. Use the Error List window to view errors
 //   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
 //   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+
+/*//this chunk here prints how do do input in a user friendly way but requires at least 3 inputs from before, a fallback is given in the else that isnt as good
+	if (d.TaskSize > 2)
+	{
+		string s1 = d.TaskArray.at(0).name;
+		string s2 = d.TaskArray.at(1).name;
+		string s3 = d.TaskArray.at(2).name;
+
+		cout << "\nPlease specify an order relation on pairs of tasks.\n\nEXAMPLES:\n\n" + s3 + " " + s1 + "			(indicates that Task:" + s3 + " must precede Task:" + s1 + ") \n" + s2 + " " + s3 + "		(indicates that Task:" + s2 + " must precede Task:" + s3 + ") \n" + s1 + " " + s2 + "		(indicates that Task:" + s3 + " must precede Task:" + s1 + ") \n";
+	}
+	else
+	{
+		cout << "\nspecify an order relation on pairs of tasks, e.g.,\n 3 1 (indicates that Task 3 must precede Task 1) \n 7 5 (indicates that Task 7 must precede Task 5) \n 5 1 (indicates that Task 5 must precede Task 1) \n";
+	}
+	//end chunk */
+
+//------------------------
