@@ -87,7 +87,7 @@ void Digraph::EdgeAddition(string head, string newLink)
 {
 	for (int i = 0; i < TaskSize; i++)
 	{
-		if (head == TaskArray.at(i).name)
+		if (head == TaskArray.at(i).name) // STOP FOR LOOP
 		{
 			
 			if (TaskArray.at(i).next == NULL)
@@ -186,9 +186,9 @@ void UserInterface::RelationInput()
 		//user input
 		cout << endl << "List of Tasks: " << endl;
 		d.PrintAllTasks();
-		cout << endl << "Relation Goes From: ";
+		cout << endl << "Relation Goes From Index: ";
 		cin >> index1; //ENTER NUMBER OF TASK 1
-		cout << endl << "Relation Goes To: ";
+		cout << endl << "Relation Goes To Index: ";
 		cin >> index2; //ENTER NUMBER OF TASK 1
 		cout << endl << "Enter another Relation? [y/n]:	";
 		cin >> tempExit;
