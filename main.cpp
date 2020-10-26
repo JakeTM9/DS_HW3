@@ -178,20 +178,27 @@ void UserInterface::RelationInput()
 	string tempFrom;
 	string tempTo;
 	string tempExit;
+	int index1;
+	int index2;
+
 	while (!exit)
 	{
 		//user input
 		cout << endl << "List of Tasks: " << endl;
 		d.PrintAllTasks();
 		cout << endl << "Relation Goes From: ";
-		cin >> tempFrom;
+		cin >> index1; //ENTER NUMBER OF TASK 1
 		cout << endl << "Relation Goes To: ";
-		cin >> tempTo;
+		cin >> index2; //ENTER NUMBER OF TASK 1
 		cout << endl << "Enter another Relation? [y/n]:	";
 		cin >> tempExit;
 
 		//add edge from strings (may have to do some string checking here in the future if we care)
-		d.EdgeAddition(tempFrom, tempTo);
+		//d.EdgeAddition(tempFrom, tempTo);
+		tempFrom = d.TaskArray.at(index1-1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
+		tempTo = d.TaskArray.at(index2-1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
+		cout << "Going from " << tempFrom << " to " << tempTo << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
+		d.EdgeAddition(tempFrom, tempTo); // SET EDGE ADDITION
 
 		//check end condition
 		if (tempExit == "y" || tempExit == "yes" || tempExit == "Yes")
