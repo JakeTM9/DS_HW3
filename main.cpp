@@ -16,17 +16,22 @@ public:
 	Task(string nameInput);
 	string name = "";
 	Task* next = nullptr;
+	Task* prev = nullptr;
+	int label = 0; // Only important in TopSort
 };
 
-Task::Task() 
-{ 
+Task::Task()
+{
 	next = nullptr;
+	prev = nullptr;
 }
 
 Task::Task(string nameInput)
 {
 	name = nameInput;
 	Task* next = nullptr;
+    Task* prev = nullptr;
+
 }
 
 
@@ -34,80 +39,113 @@ Task::Task(string nameInput)
 class Digraph {
 public:
 	Digraph(); //constructor
+	~Digraph(); //destructor
 	Digraph(int size, vector <string> TaskData); //constructor
-	void Destructor(); //TODO
 	void EdgeAddition(int index, string newLink); //adds a new Task newlink to the end of the head Task's LL
-//	void EdgeDeletion(); TODO
+	void EdgeDeletion(int index, string delLink); //deletes an Edge
 	
-//	void TopologicalSorting(); //MUST USE DFT FOUND IN BOOK //TODO
-//	void AcycliCheck(); //TODO
 
+	//void TopologicalSort(); //MUST USE DFT FOUND IN BOOK //TODO
+	//void DFSOutTopLabel(Task TopList, int v);
+	//void DFSOutTopLabel(vector<Task> TopList, int v);
+//	void AcyclicCheck(); //TODO
+	void PrintAllRelations();
 	void PrintAllTasks();//prints all Tasks
-
 	vector<Task> TaskArray; //array of unique Header Tasks (for the LL)
 	int TaskSize; // the size of taskArray 
 
 };
 
-//Defines TaskSize as 0
-Digraph::Digraph() 
-{ 
+
+Digraph::Digraph()
+{
 	TaskSize = 0;
 }
 
+Digraph::~Digraph() {}
+
 // Creates Array of Task From User Input For Class Digraph
-Digraph::Digraph( int size, vector <string> TaskData) 
-{
+Digraph::Digraph(int size, vector <string> TaskData){
 
 	TaskSize = size;
 
-	for (int i = 0; i < size; i++) 
-	{
+	for (int i = 0; i < size; i++)
+	{	
 		Task tempTask = Task(TaskData.at(i));
 		TaskArray.push_back(tempTask);
 	}
 
 	//TODO: Delete tempTask Here
+}
+
+//prints all Task Relationa
+void Digraph::PrintAllRelations()
+{
+	cout << "------------" << endl;
+	cout << "All Relations:" << endl;
+	for (int i = 0; i < TaskSize; i++)
+	{
+		Task* header = &TaskArray.at(i); // TODO Might want header relationships
+		Task* temp = &TaskArray.at(i);
+		while (temp->next != nullptr)
+		{
+			temp = temp->next;
+			cout << "(" << header->name << ", " << temp->name << ")" << endl;
+		}
+		
+	}
+	cout << "------------" << endl;
 	
+
 }
 
 //prints all Task Tasks
 void Digraph::PrintAllTasks()
 {
-	for (int i = 0; i < TaskSize -1; i++)
+	for (int i = 0; i < TaskSize - 1; i++)
 	{
 		cout << TaskArray.at(i).name + ", ";
 	}
-	cout << TaskArray.at(TaskSize-1).name;
+	cout << TaskArray.at(TaskSize - 1).name;
 
 }
 
 //basic Linked List Iteration of a new Task into the Task in the array 
 void Digraph::EdgeAddition(int index, string newLink)
 {
-	if (TaskArray.at(index).next == NULL) //IF THE NEXT VALUE IS NULL 
+	Task* header = &TaskArray.at(index); // TODO Might want header relationships
+	Task* temp = &TaskArray.at(index);
+	while (newLink != temp->name && temp->next != nullptr)
+	{
+		temp = temp->next;
+	}
+	if (newLink != temp->name) {
+		temp->next = new Task(newLink);
+		temp->next->prev = temp; // TODO Reevaluate if this is needed later
+	}
+}
+
+void Digraph::EdgeDeletion(int index, string delLink)
+{
+	Task* temp = &TaskArray.at(index);
+	while (delLink != temp->name && temp->next != nullptr)
+	{
+		temp = temp->next;
+	}
+	if (delLink == temp->name) {
+		temp->prev->next = temp->next;
+		if (temp->next != NULL)
 		{
-			TaskArray.at(index).next = new Task(newLink); //ADD A NEW LINK
+			temp->next->prev = temp->prev;
 		}
-		else  //ELSE, LOOP THROUGH UNTIL THERE IS A VACANCY IN THE LIST. WHEN THERE IS, PLACE THE LINK THERE
-		{
-			Task* temp = TaskArray.at(index).next;
-			Task* prev = temp;
-			while (temp->next != nullptr)
-			{
-				if(temp->next != nullptr)
-				{
-					temp = temp->next;
-				}
-			}
-			prev->next = new Task(newLink);
-		}
+		
+		temp = nullptr;
+		delete(temp);
+	}
 }
 
 
-void Digraph::Destructor() {
-	//ADD DESTRUCTOR CODE
-}
+
 
 class UserInterface {
 public:
@@ -115,7 +153,8 @@ public:
 	void Menu();
 	void TaskInput();
 	void RelationInput();
-	int ErrorHandling(int section, int index1=0);
+	void RelationDelete();
+	int ErrorHandling(int section, int index1 = 0);
 
 	Digraph d;
 
@@ -124,36 +163,6 @@ private:
 };
 
 UserInterface::UserInterface() {}
-
-//FUNCTION USED TO ENSURE USER INPUT FOR INDEX IS VALID
-int UserInterface::ErrorHandling(int section, int index1) { 
-	bool inputValid = false;
-	string tempFrom;
-	int index;
-
-	while (!(inputValid)) { //LOOP UNTIL INPUT IS VALID
-		if (section == 1) // IF THIS IS INDEX 1, PRINT RELATION MESSAGE ACCORDING TO INDEX 1
-			cout << endl << "Relation Goes From Index: ";
-		else //ELSE, PRINT ACCORDING TO INDEX 2
-			cout << endl << "Relation Goes To Index: ";
-		cin >> tempFrom; //ENTER INDEX OF TASK
-		//TRY TO CONVERT STRING TO INTEGER. IF NOT POSSIBLE, PRINT ERROR MESSAGE.
-		try {
-			index = stoi(tempFrom); //CONVERT STRING TO INT 
-			if (index >= 1 && index <= d.TaskArray.size() && index != index1) { //IF IT IS WITHIN RANGE AND NOT EQUAL TO THE FIRST INDEX...
-				inputValid = true; //EXIT LOOP 
-			}
-			else { //ELSE PRINT MESSAGE STATING INVALID INPUT
-				cout << "Input out of range. Try again. ";
-			}
-		}
-		catch (std::invalid_argument& index) {
-			cout << "Could not convert input to integer. Try again.\n";
-		}
-	}
-
-	return index; //RETURN INDEX
-}
 
 void UserInterface::TaskInput() {
 	vector <string> userArray;
@@ -175,21 +184,13 @@ void UserInterface::TaskInput() {
 	}
 
 	//USER ENTERS THE AMOUNT OF TASKS THEY SPECIFIED. THIS IS PLACED IN AN ARRAY.
-	for (int i = 0; i < dataIndex; i++) 
+	for (int i = 0; i < dataIndex; i++)
 	{
 		cout << "Enter task name: ";
 		if (i == 0) cin.ignore();
 		getline(cin, choice, '\n');
 		userArray.push_back(choice);
 	}
-
-	//PRINT DATA IN THE RECEiVED ORDER BACK TO THE USER 
-	cout << "\nTasks to be completed include:\n";
-	for (int i = 0; i < dataIndex; i++) 
-	{
-		cout << i + 1 << ": " << userArray[i] << endl;
-	}
-
 	//Initialize Digraph
 	d = Digraph(dataIndex, userArray);
 
@@ -208,19 +209,28 @@ void UserInterface::RelationInput()
 	while (!exit)
 	{
 		//user input
-		cout << endl << "List of Tasks: " << endl;
-		d.PrintAllTasks();
+		cout << "\nTABLE OF TASKS\n";
+		cout << "-------------------" << endl;
+		cout << "[INDEX] [TASK]" << endl;
+		cout << "-------------------" << endl;
+		for (int i = 0; i < d.TaskSize; i++)
+		{
+			cout << "[" << i + 1 << "] [" << d.TaskArray.at(i).name << "]" << endl;
+		}
+		cout << "-------------------" << endl;
+		cout << "\nSTART RELATION INPUT (FOR ADD)\n";
+		cout << "--------------------------------";
+
 		index1 = ErrorHandling(1); //CALL ERROR HANDLING FOR INDEX1
 		index2 = ErrorHandling(2, index1); //CALL ERROR HANDLING FOR INDEX2, THIS TIME WITH INDEX1 SO IT CAN ENSURE INDEX2 != INDEX1
-		cout << endl << "Enter another Relation? [y/n]:	";
-		cin >> tempExit;
+		tempFrom = d.TaskArray.at(index1 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
+		tempTo = d.TaskArray.at(index2 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
 
-		//add edge from strings (may have to do some string checking here in the future if we care)
-		//d.EdgeAddition(tempFrom, tempTo);
-		tempFrom = d.TaskArray.at(index1-1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
-		tempTo = d.TaskArray.at(index2-1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
-		cout << "Going from " << tempFrom << " to " << tempTo << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
-		d.EdgeAddition(index1-1, tempTo); // SET EDGE ADDITION
+		cout << "(" << tempFrom << ", " << tempTo << ")" << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
+		d.EdgeAddition(index1 - 1, tempTo); // SET EDGE ADDITION
+
+		cout << endl << "Enter another Relation? (FOR ADD) [y/n]:	";
+		cin >> tempExit;
 
 		//check end condition
 		if (tempExit == "y" || tempExit == "yes" || tempExit == "Yes")
@@ -232,15 +242,103 @@ void UserInterface::RelationInput()
 			exit = true;
 		}
 		cout << endl;
+
+		d.PrintAllRelations();
 	}
 }
 
-void UserInterface::Menu() 
+void UserInterface::RelationDelete()
+{
+	bool exit = false;
+	string tempFrom;
+	string tempTo;
+	string tempExit;
+	int index1;
+	int index2;
+	while (!exit)
+	{
+		//print cheat sheat
+		cout << "\nTABLE OF TASKS\n";
+		cout << "-------------------" << endl;
+		cout << "[INDEX] [TASK]" << endl;
+		cout << "-------------------" << endl;
+		for (int i = 0; i < d.TaskSize; i++)
+		{
+			cout << "[" << i + 1 << "] [" << d.TaskArray.at(i).name << "]" << endl;
+		}
+		cout << "-------------------" << endl;
+
+		cout << "\nSTART RELATION INPUT (FOR DELETE)\n";
+		cout << "--------------------------------";
+
+		//user input
+		index1 = ErrorHandling(1); //CALL ERROR HANDLING FOR INDEX1
+		index2 = ErrorHandling(2, index1); //CALL ERROR HANDLING FOR INDEX2, THIS TIME WITH INDEX1 SO IT CAN ENSURE INDEX2 != INDEX1
+		tempFrom = d.TaskArray.at(index1 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
+		tempTo = d.TaskArray.at(index2 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
+
+		cout << "(" << tempFrom << ", " << tempTo << ")" << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
+		
+		d.EdgeDeletion(index1 - 1, tempTo); // SET EDGE DELETION
+
+		cout << endl << "Enter another Relation? (FOR DELETE) [y/n]:	";
+		cin >> tempExit;
+
+		//check end condition
+		if (tempExit == "y" || tempExit == "yes" || tempExit == "Yes")
+		{
+			exit = false;
+		}
+		else
+		{
+			exit = true;
+		}
+		cout << endl;
+
+		d.PrintAllRelations();
+	}
+
+	
+}
+
+void UserInterface::Menu()
 {
 	bool run = true;
 	TaskInput();
 	RelationInput();
+	RelationDelete();
+
 	//TODO: Destructor, Edge Deletion, Topological Sort, Acylic Check (pretty sure acylic check is ez but not 100%)
+}
+
+//FUNCTION USED TO ENSURE USER INPUT FOR INDEX IS VALID
+int UserInterface::ErrorHandling(int section, int index1) {
+	bool inputValid = false;
+	string tempFrom;
+	int index;
+
+	while (!(inputValid)) { //LOOP UNTIL INPUT IS VALID
+		if (section == 1) // IF THIS IS INDEX 1, PRINT RELATION MESSAGE ACCORDING TO INDEX 1
+			cout << endl << "Relation Goes From Index: ";
+		else //ELSE, PRINT ACCORDING TO INDEX 2
+			cout  << "Relation Goes To Index: ";
+		cin >> tempFrom; //ENTER INDEX OF TASK
+		//TRY TO CONVERT STRING TO INTEGER. IF NOT POSSIBLE, PRINT ERROR MESSAGE.
+		try {
+			index = stoi(tempFrom); //CONVERT STRING TO INT 
+			if (index >= 1 && index <= d.TaskArray.size() && index != index1) { //IF IT IS WITHIN RANGE AND NOT EQUAL TO THE FIRST INDEX...
+				inputValid = true; //EXIT LOOP 
+			}
+			else { //ELSE PRINT MESSAGE STATING INVALID INPUT
+				cout << "Input out of range. Try again. ";
+			}
+		}
+		catch (std::invalid_argument& index) {
+			cout << "Could not convert input to integer. Try again.\n";
+		}
+	}
+
+	return index; //RETURN INDEX
 }
 
 // END UI
@@ -279,7 +377,6 @@ int main() {
 		string s1 = d.TaskArray.at(0).name;
 		string s2 = d.TaskArray.at(1).name;
 		string s3 = d.TaskArray.at(2).name;
-
 		cout << "\nPlease specify an order relation on pairs of tasks.\n\nEXAMPLES:\n\n" + s3 + " " + s1 + "			(indicates that Task:" + s3 + " must precede Task:" + s1 + ") \n" + s2 + " " + s3 + "		(indicates that Task:" + s2 + " must precede Task:" + s3 + ") \n" + s1 + " " + s2 + "		(indicates that Task:" + s3 + " must precede Task:" + s1 + ") \n";
 	}
 	else
@@ -288,4 +385,3 @@ int main() {
 	}
 	//end chunk */
 
-//------------------------
