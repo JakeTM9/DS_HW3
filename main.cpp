@@ -49,7 +49,7 @@ public:
 	//void DFSOutTopLabel(Task TopList, int v);
 	//void DFSOutTopLabel(vector<Task> TopList, int v);
 //	void AcyclicCheck(); //TODO
-	void PrintAllRelations();
+	void PrintAllRelations(int status);
 	void PrintAllTasks();//prints all Tasks
 	vector<Task> TaskArray; //array of unique Header Tasks (for the LL)
 	int TaskSize; // the size of taskArray 
@@ -79,10 +79,16 @@ Digraph::Digraph(int size, vector <string> TaskData){
 }
 
 //prints all Task Relationa
-void Digraph::PrintAllRelations()
+void Digraph::PrintAllRelations(int status=0)
 {
 	cout << "------------" << endl;
-	cout << "All Relations:" << endl;
+	if (status == 0) {
+		cout << "All Relations:" << endl;
+	}
+	else {
+		cout << "Final Relations:\n";
+	}
+	
 	for (int i = 0; i < TaskSize; i++)
 	{
 		Task* header = &TaskArray.at(i); // TODO Might want header relationships
@@ -198,7 +204,6 @@ void UserInterface::TaskInput() {
 
 void UserInterface::RelationInput()
 {
-	bool exit = false;
 	string tempFrom;
 	string tempTo;
 	string tempExit;
@@ -206,45 +211,25 @@ void UserInterface::RelationInput()
 	int index2;
 	bool inputValid = false;
 
-	while (!exit)
+	//user input
+	cout << "\nTABLE OF TASKS\n";
+	cout << "-------------------" << endl;
+	cout << "[INDEX] [TASK]" << endl;
+	cout << "-------------------" << endl;
+	for (int i = 0; i < d.TaskSize; i++)
 	{
-		//user input
-		cout << "\nTABLE OF TASKS\n";
-		cout << "-------------------" << endl;
-		cout << "[INDEX] [TASK]" << endl;
-		cout << "-------------------" << endl;
-		for (int i = 0; i < d.TaskSize; i++)
-		{
-			cout << "[" << i + 1 << "] [" << d.TaskArray.at(i).name << "]" << endl;
-		}
-		cout << "-------------------" << endl;
-		cout << "\nSTART RELATION INPUT (FOR ADD)\n";
-		cout << "--------------------------------";
-
-		index1 = ErrorHandling(1); //CALL ERROR HANDLING FOR INDEX1
-		index2 = ErrorHandling(2, index1); //CALL ERROR HANDLING FOR INDEX2, THIS TIME WITH INDEX1 SO IT CAN ENSURE INDEX2 != INDEX1
-		tempFrom = d.TaskArray.at(index1 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
-		tempTo = d.TaskArray.at(index2 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
-
-		cout << "(" << tempFrom << ", " << tempTo << ")" << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
-		d.EdgeAddition(index1 - 1, tempTo); // SET EDGE ADDITION
-
-		cout << endl << "Enter another Relation? (FOR ADD) [y/n]:	";
-		cin >> tempExit;
-
-		//check end condition
-		if (tempExit == "y" || tempExit == "yes" || tempExit == "Yes")
-		{
-			exit = false;
-		}
-		else
-		{
-			exit = true;
-		}
-		cout << endl;
-
-		d.PrintAllRelations();
+		cout << "[" << i + 1 << "] [" << d.TaskArray.at(i).name << "]" << endl;
 	}
+	cout << "-------------------" << endl;
+	cout << "\nSTART RELATION INPUT (FOR ADD)\n";
+	cout << "--------------------------------";
+	index1 = ErrorHandling(1); //CALL ERROR HANDLING FOR INDEX1
+	index2 = ErrorHandling(2, index1); //CALL ERROR HANDLING FOR INDEX2, THIS TIME WITH INDEX1 SO IT CAN ENSURE INDEX2 != INDEX1
+	tempFrom = d.TaskArray.at(index1 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
+	tempTo = d.TaskArray.at(index2 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
+	cout << "\nNew relation: (" << tempFrom << ", " << tempTo << ")" << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
+	d.EdgeAddition(index1 - 1, tempTo); // SET EDGE ADDITION
+	d.PrintAllRelations();
 }
 
 void UserInterface::RelationDelete()
@@ -255,58 +240,59 @@ void UserInterface::RelationDelete()
 	string tempExit;
 	int index1;
 	int index2;
-	while (!exit)
+	//print cheat sheat
+	cout << "\nTABLE OF TASKS\n";
+	cout << "-------------------" << endl;
+	cout << "[INDEX] [TASK]" << endl;
+	cout << "-------------------" << endl;
+	for (int i = 0; i < d.TaskSize; i++)
 	{
-		//print cheat sheat
-		cout << "\nTABLE OF TASKS\n";
-		cout << "-------------------" << endl;
-		cout << "[INDEX] [TASK]" << endl;
-		cout << "-------------------" << endl;
-		for (int i = 0; i < d.TaskSize; i++)
-		{
-			cout << "[" << i + 1 << "] [" << d.TaskArray.at(i).name << "]" << endl;
-		}
-		cout << "-------------------" << endl;
-
-		cout << "\nSTART RELATION INPUT (FOR DELETE)\n";
-		cout << "--------------------------------";
-
-		//user input
-		index1 = ErrorHandling(1); //CALL ERROR HANDLING FOR INDEX1
-		index2 = ErrorHandling(2, index1); //CALL ERROR HANDLING FOR INDEX2, THIS TIME WITH INDEX1 SO IT CAN ENSURE INDEX2 != INDEX1
-		tempFrom = d.TaskArray.at(index1 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
-		tempTo = d.TaskArray.at(index2 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
-
-		cout << "(" << tempFrom << ", " << tempTo << ")" << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
-		
-		d.EdgeDeletion(index1 - 1, tempTo); // SET EDGE DELETION
-
-		cout << endl << "Enter another Relation? (FOR DELETE) [y/n]:	";
-		cin >> tempExit;
-
-		//check end condition
-		if (tempExit == "y" || tempExit == "yes" || tempExit == "Yes")
-		{
-			exit = false;
-		}
-		else
-		{
-			exit = true;
-		}
-		cout << endl;
-
-		d.PrintAllRelations();
+		cout << "[" << i + 1 << "] [" << d.TaskArray.at(i).name << "]" << endl;
 	}
+	cout << "-------------------" << endl;
+	cout << "\nSTART RELATION INPUT (FOR DELETE)\n";
+	cout << "--------------------------------";
 
+	//user input
+	index1 = ErrorHandling(1); //CALL ERROR HANDLING FOR INDEX1
+	index2 = ErrorHandling(2, index1); //CALL ERROR HANDLING FOR INDEX2, THIS TIME WITH INDEX1 SO IT CAN ENSURE INDEX2 != INDEX1
+	tempFrom = d.TaskArray.at(index1 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
+	tempTo = d.TaskArray.at(index2 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
+	cout << "\nDeleted index: (" << tempFrom << ", " << tempTo << ")" << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
 	
+	d.EdgeDeletion(index1 - 1, tempTo); // SET EDGE DELETION
+	d.PrintAllRelations();
 }
 
 void UserInterface::Menu()
 {
 	bool run = true;
+	char choice;
 	TaskInput();
-	RelationInput();
-	RelationDelete();
+	
+	while (run) { //while user wants to edit data...
+		// menu statement
+		cout << "\nWhat would you like to do? \n 1. Add a new relation. \n 2. Delete a relation.\n 0. Exit.\n"; //TODO ; ADD OTHER RELATIONS
+		cout << "Enter the number corresponding with your selection: \n";
+		cin >> choice; //user enters choice number
+		switch (choice) {
+		case '1':
+			RelationInput(); //if user enters 1, add relation
+			break;
+		case '2':
+			RelationDelete(); //if user enters 2, delete relation 
+			break;
+		case '0':
+			//if user enters 0, print final relations and exit loop
+			cout << endl; 
+			d.PrintAllRelations(1);
+			run = false; //break loop
+			break;
+		default:
+			cout << "Please enter a valid choice. \n"; //if choice was not valid, print an error statement 
+			break;
+		}
+	}
 
 	//TODO: Destructor, Edge Deletion, Topological Sort, Acylic Check (pretty sure acylic check is ez but not 100%)
 }
