@@ -85,31 +85,23 @@ void Digraph::PrintAllTasks()
 //basic Linked List Iteration of a new Task into the Task in the array 
 void Digraph::EdgeAddition(int index, string newLink)
 {
-	//for (int i = 0; i < TaskSize; i++)
-	//{
-	//	if (head == TaskArray.at(i).name) // STOP FOR LOOP
-	//	{
-			
-			if (TaskArray.at(index).next == NULL)
+	if (TaskArray.at(index).next == NULL) //IF THE NEXT VALUE IS NULL 
+		{
+			TaskArray.at(index).next = new Task(newLink); //ADD A NEW LINK
+		}
+		else  //ELSE, LOOP THROUGH UNTIL THERE IS A VACANCY IN THE LIST. WHEN THERE IS, PLACE THE LINK THERE
+		{
+			Task* temp = TaskArray.at(index).next;
+			Task* prev = temp;
+			while (temp->next != nullptr)
 			{
-				TaskArray.at(index).next = new Task(newLink);
-			}
-			else 
-			{
-				Task* temp = TaskArray.at(index).next;
-				Task* prev = temp;
-				while (temp->next != nullptr)
+				if(temp->next != nullptr)
 				{
-					if(temp->next != nullptr)
-					{
-						temp = temp->next;
-					}
+					temp = temp->next;
 				}
-				prev->next = new Task(newLink);
 			}
-				
-	//	}
-	//}
+			prev->next = new Task(newLink);
+		}
 }
 
 
@@ -220,9 +212,6 @@ void UserInterface::RelationInput()
 		d.PrintAllTasks();
 		index1 = ErrorHandling(1); //CALL ERROR HANDLING FOR INDEX1
 		index2 = ErrorHandling(2, index1); //CALL ERROR HANDLING FOR INDEX2, THIS TIME WITH INDEX1 SO IT CAN ENSURE INDEX2 != INDEX1
-
-		
-
 		cout << endl << "Enter another Relation? [y/n]:	";
 		cin >> tempExit;
 
