@@ -136,7 +136,11 @@ void Digraph::EdgeDeletion(int index, string delLink)
 	}
 	if (delLink == temp->name) {
 		temp->prev->next = temp->next;
-		temp->next->prev = temp->prev;
+		if (temp->next != NULL)
+		{
+			temp->next->prev = temp->prev;
+		}
+		
 		temp = nullptr;
 		delete(temp);
 	}
