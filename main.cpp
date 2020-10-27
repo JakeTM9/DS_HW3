@@ -36,7 +36,7 @@ public:
 	Digraph(); //constructor
 	Digraph(int size, vector <string> TaskData); //constructor
 	void Destructor(); //TODO
-	void EdgeAddition(string head,string newLink); //adds a new Task newlink to the end of the head Task's LL
+	void EdgeAddition(int index, string newLink); //adds a new Task newlink to the end of the head Task's LL
 //	void EdgeDeletion(); TODO
 	
 //	void TopologicalSorting(); //MUST USE DFT FOUND IN BOOK //TODO
@@ -83,20 +83,20 @@ void Digraph::PrintAllTasks()
 }
 
 //basic Linked List Iteration of a new Task into the Task in the array 
-void Digraph::EdgeAddition(string head, string newLink)
+void Digraph::EdgeAddition(int index, string newLink)
 {
-	for (int i = 0; i < TaskSize; i++)
-	{
-		if (head == TaskArray.at(i).name) // STOP FOR LOOP
-		{
+	//for (int i = 0; i < TaskSize; i++)
+	//{
+	//	if (head == TaskArray.at(i).name) // STOP FOR LOOP
+	//	{
 			
-			if (TaskArray.at(i).next == NULL)
+			if (TaskArray.at(index).next == NULL)
 			{
-				TaskArray.at(i).next = new Task(newLink);
+				TaskArray.at(index).next = new Task(newLink);
 			}
 			else 
 			{
-				Task* temp = TaskArray.at(i).next;
+				Task* temp = TaskArray.at(index).next;
 				Task* prev = temp;
 				while (temp->next != nullptr)
 				{
@@ -108,8 +108,8 @@ void Digraph::EdgeAddition(string head, string newLink)
 				prev->next = new Task(newLink);
 			}
 				
-		}
-	}
+	//	}
+	//}
 }
 
 
@@ -123,6 +123,7 @@ public:
 	void Menu();
 	void TaskInput();
 	void RelationInput();
+	int ErrorHandling(int section, int index1=0);
 
 	Digraph d;
 
@@ -131,6 +132,36 @@ private:
 };
 
 UserInterface::UserInterface() {}
+
+//FUNCTION USED TO ENSURE USER INPUT FOR INDEX IS VALID
+int UserInterface::ErrorHandling(int section, int index1) { 
+	bool inputValid = false;
+	string tempFrom;
+	int index;
+
+	while (!(inputValid)) { //LOOP UNTIL INPUT IS VALID
+		if (section == 1) // IF THIS IS INDEX 1, PRINT RELATION MESSAGE ACCORDING TO INDEX 1
+			cout << endl << "Relation Goes From Index: ";
+		else //ELSE, PRINT ACCORDING TO INDEX 2
+			cout << endl << "Relation Goes To Index: ";
+		cin >> tempFrom; //ENTER INDEX OF TASK
+		//TRY TO CONVERT STRING TO INTEGER. IF NOT POSSIBLE, PRINT ERROR MESSAGE.
+		try {
+			index = stoi(tempFrom); //CONVERT STRING TO INT 
+			if (index >= 1 && index <= d.TaskArray.size() && index != index1) { //IF IT IS WITHIN RANGE AND NOT EQUAL TO THE FIRST INDEX...
+				inputValid = true; //EXIT LOOP 
+			}
+			else { //ELSE PRINT MESSAGE STATING INVALID INPUT
+				cout << "Input out of range. Try again. ";
+			}
+		}
+		catch (std::invalid_argument& index) {
+			cout << "Could not convert input to integer. Try again.\n";
+		}
+	}
+
+	return index; //RETURN INDEX
+}
 
 void UserInterface::TaskInput() {
 	vector <string> userArray;
@@ -144,7 +175,7 @@ void UserInterface::TaskInput() {
 		cin >> dataIndex; // USER ENTERS HOW MANY TASKS MUST BE COMPLETE 
 
 		if (dataIndex <= 1) {
-			cout << "ERROR : TASK NUMBER MUST BE GREATER THAN 1!\n";
+			cout << "ERROR : TASK NUMBER MUST BE GREATER THAN 1!\n"; //THERE MUST BE MORE THAN 1 TASK!
 		}
 		else {
 			validChoice = false;
@@ -180,16 +211,18 @@ void UserInterface::RelationInput()
 	string tempExit;
 	int index1;
 	int index2;
+	bool inputValid = false;
 
 	while (!exit)
 	{
 		//user input
 		cout << endl << "List of Tasks: " << endl;
 		d.PrintAllTasks();
-		cout << endl << "Relation Goes From Index: ";
-		cin >> index1; //ENTER NUMBER OF TASK 1
-		cout << endl << "Relation Goes To Index: ";
-		cin >> index2; //ENTER NUMBER OF TASK 1
+		index1 = ErrorHandling(1); //CALL ERROR HANDLING FOR INDEX1
+		index2 = ErrorHandling(2, index1); //CALL ERROR HANDLING FOR INDEX2, THIS TIME WITH INDEX1 SO IT CAN ENSURE INDEX2 != INDEX1
+
+		
+
 		cout << endl << "Enter another Relation? [y/n]:	";
 		cin >> tempExit;
 
@@ -198,7 +231,7 @@ void UserInterface::RelationInput()
 		tempFrom = d.TaskArray.at(index1-1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
 		tempTo = d.TaskArray.at(index2-1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
 		cout << "Going from " << tempFrom << " to " << tempTo << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
-		d.EdgeAddition(tempFrom, tempTo); // SET EDGE ADDITION
+		d.EdgeAddition(index1-1, tempTo); // SET EDGE ADDITION
 
 		//check end condition
 		if (tempExit == "y" || tempExit == "yes" || tempExit == "Yes")
