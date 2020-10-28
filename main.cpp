@@ -116,12 +116,15 @@ void Digraph::PrintAllRelations(int status=0)
 //prints all Task Tasks
 void Digraph::PrintAllTasks()
 {
-	for (int i = 0; i < TaskSize - 1; i++)
+	cout << "\nTABLE OF TASKS\n";
+	cout << "-------------------" << endl;
+	cout << "[INDEX] [TASK]" << endl;
+	cout << "-------------------" << endl;
+	for (int i = 0; i < TaskSize; i++)
 	{
-		cout << TaskArray.at(i).name + ", ";
+		cout << "[" << i + 1 << "] [" << TaskArray.at(i).name << "]" << endl;
 	}
-	cout << TaskArray.at(TaskSize - 1).name;
-
+	cout << "-------------------" << endl;
 }
 
 //basic Linked List Iteration of a new Task into the Task in the array 
@@ -255,15 +258,7 @@ void UserInterface::RelationInput()
 	bool inputValid = false;
 
 	//user input
-	cout << "\nTABLE OF TASKS\n";
-	cout << "-------------------" << endl;
-	cout << "[INDEX] [TASK]" << endl;
-	cout << "-------------------" << endl;
-	for (int i = 0; i < d.TaskSize; i++)
-	{
-		cout << "[" << i + 1 << "] [" << d.TaskArray.at(i).name << "]" << endl;
-	}
-	cout << "-------------------" << endl;
+	d.PrintAllTasks(); //print tasks for user
 	cout << "\nSTART RELATION INPUT (FOR ADD)\n";
 	cout << "--------------------------------";
 	index1 = ErrorHandling(1); //CALL ERROR HANDLING FOR INDEX1
@@ -284,16 +279,7 @@ void UserInterface::RelationDelete()
 	string tempExit;
 	int index1;
 	int index2;
-	//print cheat sheat
-	cout << "\nTABLE OF TASKS\n";
-	cout << "-------------------" << endl;
-	cout << "[INDEX] [TASK]" << endl;
-	cout << "-------------------" << endl;
-	for (int i = 0; i < d.TaskSize; i++)
-	{
-		cout << "[" << i + 1 << "] [" << d.TaskArray.at(i).name << "]" << endl;
-	}
-	cout << "-------------------" << endl;
+	d.PrintAllTasks(); // print tasks for user
 	cout << "\nSTART RELATION INPUT (FOR DELETE)\n";
 	cout << "--------------------------------";
 
@@ -317,8 +303,8 @@ void UserInterface::Menu()
 	
 	while (run) { //while user wants to edit data...
 		// menu statement
-		cout << "\nWhat would you like to do? \n 1. Add a new relation. \n 2. Delete a relation.\n 0. Exit.\n"; //TODO ; ADD OTHER RELATIONS
-		cout << "Enter the number corresponding with your selection: \n";
+		cout << "\nWhat would you like to do? \n 1. Add a new relation. \n 2. Delete a relation. \n 3. Topological Sort \n 4. Acyclic Check \n 5. Print Tasks and Relations \n 0. Exit.\n"; //TODO ; ADD OTHER RELATIONS
+		cout << "Enter the number corresponding with your selection: ";
 		cin >> choice; //user enters choice number
 		switch (choice) {
 		case '1':
@@ -326,6 +312,16 @@ void UserInterface::Menu()
 			break;
 		case '2':
 			RelationDelete(); //if user enters 2, delete relation 
+			break;
+		case '3':
+			//TODO: ADD TOP SORT FUNCTION
+			break;
+		case '4':
+			//TODO: ADD ACYCLIC CHECK FUNCTION
+			break;
+		case '5':
+			d.PrintAllTasks();
+			d.PrintAllRelations();
 			break;
 		case '0':
 			//if user enters 0, print final relations and exit loop
