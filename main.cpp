@@ -80,6 +80,8 @@ Digraph::Digraph(int size, vector <string> TaskData){
 //prints all Task Relationa
 void Digraph::PrintAllRelations(int status=0)
 {
+	int countNullRelations = 0;
+
 	cout << "------------" << endl;
 	if (status == 0) {
 		cout << "All Relations:" << endl;
@@ -92,6 +94,9 @@ void Digraph::PrintAllRelations(int status=0)
 	{
 		Task* header = &TaskArray.at(i); // TODO Might want header relationships
 		Task* temp = &TaskArray.at(i);
+		if (header->next == nullptr) {
+			countNullRelations++;
+		}
 		while (temp->next != nullptr)
 		{
 			temp = temp->next;
@@ -99,6 +104,11 @@ void Digraph::PrintAllRelations(int status=0)
 		}
 		
 	}
+
+	if (countNullRelations == TaskSize) {
+		cout << "\nNo relations exist!\n";
+	}
+
 	cout << "------------" << endl;
 	
 }
@@ -340,40 +350,8 @@ void UserInterface::Menu()
 int main() {
 	UserInterface UI;
 	UI.Menu();
-	cout << "Done! Press any key to exit...\n";
+	cout << "\nThank you! Press any key to exit...\n";
 	cin.get();
 	cin.ignore();
 	return 0;
 }
-
-
-
-
-
-
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
-
-/*//this chunk here prints how do do input in a user friendly way but requires at least 3 inputs from before, a fallback is given in the else that isnt as good
-	if (d.TaskSize > 2)
-	{
-		string s1 = d.TaskArray.at(0).name;
-		string s2 = d.TaskArray.at(1).name;
-		string s3 = d.TaskArray.at(2).name;
-		cout << "\nPlease specify an order relation on pairs of tasks.\n\nEXAMPLES:\n\n" + s3 + " " + s1 + "			(indicates that Task:" + s3 + " must precede Task:" + s1 + ") \n" + s2 + " " + s3 + "		(indicates that Task:" + s2 + " must precede Task:" + s3 + ") \n" + s1 + " " + s2 + "		(indicates that Task:" + s3 + " must precede Task:" + s1 + ") \n";
-	}
-	else
-	{
-		cout << "\nspecify an order relation on pairs of tasks, e.g.,\n 3 1 (indicates that Task 3 must precede Task 1) \n 7 5 (indicates that Task 7 must precede Task 5) \n 5 1 (indicates that Task 5 must precede Task 1) \n";
-	}
-	//end chunk */
-
