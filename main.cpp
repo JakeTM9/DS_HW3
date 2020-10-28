@@ -127,6 +127,9 @@ void Digraph::EdgeAddition(int index, string newLink)
 		temp->next = new Task(newLink);
 		temp->next->prev = temp; // TODO Reevaluate if this is needed later
 	}
+	else {
+		cout << endl << "\nRelation (" << (*header).name << ", " << (*temp).name << ") already exists!\n";
+	}
 }
 
 void Digraph::EdgeDeletion(int index, string delLink)
@@ -138,9 +141,15 @@ void Digraph::EdgeDeletion(int index, string delLink)
 	}
 	if (delLink == temp->name) {
 		temp->prev->next = temp->next;
-		temp->next->prev = temp->prev;
+		if (temp->next != NULL)
+		{
+			temp->next->prev = temp->prev;
+		}
 		temp = nullptr;
 		delete(temp);
+	}
+	else {
+		cout << "\nRelation does not exist!\n";
 	}
 }
 
@@ -283,7 +292,7 @@ void UserInterface::RelationDelete()
 	index2 = ErrorHandling(2, index1); //CALL ERROR HANDLING FOR INDEX2, THIS TIME WITH INDEX1 SO IT CAN ENSURE INDEX2 != INDEX1
 	tempFrom = d.TaskArray.at(index1 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
 	tempTo = d.TaskArray.at(index2 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
-	cout << "\nDeleted index: (" << tempFrom << ", " << tempTo << ")" << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
+	cout << "\nDeleted relation: (" << tempFrom << ", " << tempTo << ")" << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
 	
 	d.EdgeDeletion(index1 - 1, tempTo); // SET EDGE DELETION
 	d.PrintAllRelations();
