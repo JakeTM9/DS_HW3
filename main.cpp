@@ -30,8 +30,7 @@ Task::Task(string nameInput)
 {
 	name = nameInput;
 	Task* next = nullptr;
-    Task* prev = nullptr;
-
+	Task* prev = nullptr;
 }
 
 
@@ -42,8 +41,7 @@ public:
 	~Digraph(); //destructor
 	Digraph(int size, vector <string> TaskData); //constructor
 	void EdgeAddition(int index, string newLink); //adds a new Task newlink to the end of the head Task's LL
-	void EdgeDeletion(int index, string delLink); //deletes an Edge
-	
+	void EdgeDeletion(int index, string delLink); //TODO
 
 	//void TopologicalSort(); //MUST USE DFT FOUND IN BOOK //TODO
 	//void DFSOutTopLabel(Task TopList, int v);
@@ -57,6 +55,7 @@ public:
 };
 
 
+//Defines TaskSize as 0
 Digraph::Digraph()
 {
 	TaskSize = 0;
@@ -102,7 +101,6 @@ void Digraph::PrintAllRelations(int status=0)
 	}
 	cout << "------------" << endl;
 	
-
 }
 
 //prints all Task Tasks
@@ -140,11 +138,7 @@ void Digraph::EdgeDeletion(int index, string delLink)
 	}
 	if (delLink == temp->name) {
 		temp->prev->next = temp->next;
-		if (temp->next != NULL)
-		{
-			temp->next->prev = temp->prev;
-		}
-		
+		temp->next->prev = temp->prev;
 		temp = nullptr;
 		delete(temp);
 	}
@@ -169,6 +163,36 @@ private:
 };
 
 UserInterface::UserInterface() {}
+
+//FUNCTION USED TO ENSURE USER INPUT FOR INDEX IS VALID
+int UserInterface::ErrorHandling(int section, int index1) {
+	bool inputValid = false;
+	string tempFrom;
+	int index;
+
+	while (!(inputValid)) { //LOOP UNTIL INPUT IS VALID
+		if (section == 1) // IF THIS IS INDEX 1, PRINT RELATION MESSAGE ACCORDING TO INDEX 1
+			cout << endl << "Relation Goes From Index: ";
+		else //ELSE, PRINT ACCORDING TO INDEX 2
+			cout << endl << "Relation Goes To Index: ";
+		cin >> tempFrom; //ENTER INDEX OF TASK
+		//TRY TO CONVERT STRING TO INTEGER. IF NOT POSSIBLE, PRINT ERROR MESSAGE.
+		try {
+			index = stoi(tempFrom); //CONVERT STRING TO INT 
+			if (index >= 1 && index <= d.TaskArray.size() && index != index1) { //IF IT IS WITHIN RANGE AND NOT EQUAL TO THE FIRST INDEX...
+				inputValid = true; //EXIT LOOP 
+			}
+			else { //ELSE PRINT MESSAGE STATING INVALID INPUT
+				cout << "Input out of range. Try again. ";
+			}
+		}
+		catch (std::invalid_argument& index) {
+			cout << "Could not convert input to integer. Try again.\n";
+		}
+	}
+
+	return index; //RETURN INDEX
+}
 
 void UserInterface::TaskInput() {
 	vector <string> userArray;
@@ -197,7 +221,7 @@ void UserInterface::TaskInput() {
 		getline(cin, choice, '\n');
 		userArray.push_back(choice);
 	}
-	//Initialize Digraph
+   //Initialize Digraph
 	d = Digraph(dataIndex, userArray);
 
 }
@@ -232,6 +256,7 @@ void UserInterface::RelationInput()
 	d.PrintAllRelations();
 }
 
+
 void UserInterface::RelationDelete()
 {
 	bool exit = false;
@@ -263,6 +288,7 @@ void UserInterface::RelationDelete()
 	d.EdgeDeletion(index1 - 1, tempTo); // SET EDGE DELETION
 	d.PrintAllRelations();
 }
+
 
 void UserInterface::Menu()
 {
@@ -297,35 +323,6 @@ void UserInterface::Menu()
 	//TODO: Destructor, Edge Deletion, Topological Sort, Acylic Check (pretty sure acylic check is ez but not 100%)
 }
 
-//FUNCTION USED TO ENSURE USER INPUT FOR INDEX IS VALID
-int UserInterface::ErrorHandling(int section, int index1) {
-	bool inputValid = false;
-	string tempFrom;
-	int index;
-
-	while (!(inputValid)) { //LOOP UNTIL INPUT IS VALID
-		if (section == 1) // IF THIS IS INDEX 1, PRINT RELATION MESSAGE ACCORDING TO INDEX 1
-			cout << endl << "Relation Goes From Index: ";
-		else //ELSE, PRINT ACCORDING TO INDEX 2
-			cout  << "Relation Goes To Index: ";
-		cin >> tempFrom; //ENTER INDEX OF TASK
-		//TRY TO CONVERT STRING TO INTEGER. IF NOT POSSIBLE, PRINT ERROR MESSAGE.
-		try {
-			index = stoi(tempFrom); //CONVERT STRING TO INT 
-			if (index >= 1 && index <= d.TaskArray.size() && index != index1) { //IF IT IS WITHIN RANGE AND NOT EQUAL TO THE FIRST INDEX...
-				inputValid = true; //EXIT LOOP 
-			}
-			else { //ELSE PRINT MESSAGE STATING INVALID INPUT
-				cout << "Input out of range. Try again. ";
-			}
-		}
-		catch (std::invalid_argument& index) {
-			cout << "Could not convert input to integer. Try again.\n";
-		}
-	}
-
-	return index; //RETURN INDEX
-}
 
 // END UI
 
