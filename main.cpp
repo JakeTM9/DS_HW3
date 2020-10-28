@@ -9,6 +9,9 @@
 using namespace std;
 
 //The "Node" Class that is a piece of data
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+
 class Task
 {
 public:
@@ -33,7 +36,7 @@ Task::Task(string nameInput)
 	Task* prev = nullptr;
 }
 
-
+//-----------------------------------------------------------------------------------------------------------------------------------
 
 class Digraph {
 public:
@@ -43,7 +46,11 @@ public:
 	void EdgeAddition(int index, string newLink); //adds a new Task newlink to the end of the head Task's LL
 	void EdgeDeletion(int index, string delLink); //TODO
 
-	//void TopologicalSort(); //MUST USE DFT FOUND IN BOOK //TODO
+	void TopologicalSort(); //TopSort Recursive
+	void DFSOutTopLabel(vector<bool> Mark, int v); //Topsort Recursive Helper Function
+	void PrintTopLinkedList();
+	Task* TopLinkedListHeader = new Task();
+
 	//void DFSOutTopLabel(Task TopList, int v);
 	//void DFSOutTopLabel(vector<Task> TopList, int v);
 //	void AcyclicCheck(); //TODO
@@ -51,6 +58,7 @@ public:
 	void PrintAllTasks();//prints all Tasks
 	vector<Task> TaskArray; //array of unique Header Tasks (for the LL)
 	int TaskSize; // the size of taskArray 
+	
 
 };
 
@@ -64,12 +72,12 @@ Digraph::Digraph()
 Digraph::~Digraph() {}
 
 // Creates Array of Task From User Input For Class Digraph
-Digraph::Digraph(int size, vector <string> TaskData){
+Digraph::Digraph(int size, vector <string> TaskData) {
 
 	TaskSize = size;
 
 	for (int i = 0; i < size; i++)
-	{	
+	{
 		Task tempTask = Task(TaskData.at(i));
 		TaskArray.push_back(tempTask);
 	}
@@ -78,7 +86,7 @@ Digraph::Digraph(int size, vector <string> TaskData){
 }
 
 //prints all Task Relationa
-void Digraph::PrintAllRelations(int status=0)
+void Digraph::PrintAllRelations(int status = 0)
 {
 	int countNullRelations = 0;
 
@@ -89,7 +97,7 @@ void Digraph::PrintAllRelations(int status=0)
 	else {
 		cout << "Final Relations:\n";
 	}
-	
+
 	for (int i = 0; i < TaskSize; i++)
 	{
 		Task* header = &TaskArray.at(i); // TODO Might want header relationships
@@ -102,7 +110,7 @@ void Digraph::PrintAllRelations(int status=0)
 			temp = temp->next;
 			cout << "(" << header->name << ", " << temp->name << ")" << endl;
 		}
-		
+
 	}
 
 	if (countNullRelations == TaskSize) {
@@ -110,7 +118,7 @@ void Digraph::PrintAllRelations(int status=0)
 	}
 
 	cout << "------------" << endl;
-	
+
 }
 
 //prints all Task Tasks
@@ -166,8 +174,57 @@ void Digraph::EdgeDeletion(int index, string delLink)
 	}
 }
 
+void Digraph::TopologicalSort() //Look at Page 233
+{
+	std::vector<bool> Mark(TaskSize, false);
+	int counter = TaskSize - 1;
+	for (int v = 0; v < TaskSize - 1; v++)
+	{
+		if (!Mark.at(v))
+		{
+			DFSOutTopLabel(Mark, v);
+		}
+	}
+}
 
+void Digraph::DFSOutTopLabel(vector<bool> Mark, int v) // Look at Page 233's recursive function
+{
+	Mark.at(v) = true;
+	for (int w = 0; w < TaskSize - 1; w++)
+	{
+		if (Mark.at(w) = false)
+		{
+			DFSOutTopLabel(Mark, w);
+		}
+	}
+	Task* temp = TopLinkedListHeader;
+	while (temp->prev != nullptr) // iterates backewards because the book counts down
+	{
+		temp = temp->prev;
+	}
+	Task* TopTask  = new Task(TaskArray.at(v).name); //Theres probably a bettwe way to go about this function but I'm gonna take a break (1:38pm)
+	TopTask->next = temp;
+	temp->prev = TopTask;
+}
 
+void Digraph::PrintTopLinkedList()
+{
+	Task* temp = TopLinkedListHeader;
+	while (temp->prev != nullptr)
+	{
+		temp = temp -> prev;
+	}
+	cout << "TopSorted Order:" << endl;
+	while (temp->next != nullptr)
+	{
+		cout << temp->name << ", ";
+		temp = temp->next;
+	}
+	cout << temp->name;
+
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------
 
 class UserInterface {
 public:
@@ -177,6 +234,7 @@ public:
 	void RelationInput();
 	void RelationDelete();
 	int ErrorHandling(int section, int index1 = 0);
+	void TopSort();
 
 	Digraph d;
 
@@ -243,7 +301,7 @@ void UserInterface::TaskInput() {
 		getline(cin, choice, '\n');
 		userArray.push_back(choice);
 	}
-   //Initialize Digraph
+	//Initialize Digraph
 	d = Digraph(dataIndex, userArray);
 
 }
@@ -289,9 +347,18 @@ void UserInterface::RelationDelete()
 	tempFrom = d.TaskArray.at(index1 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING FROM  (MUST SUBTRACT 1 FOR 0 INDEXING)
 	tempTo = d.TaskArray.at(index2 - 1).name; //FIND IN TASKARRAY WHAT RELATION IT IS GOING TO (MUST SUBTRACT 1 FOR 0 INDEXING)
 	cout << "\nDeleted relation: (" << tempFrom << ", " << tempTo << ")" << endl; //PRINT OUT TO ENSURE IT IS GOING FROM X TO Y CORRECTLY
-	
+
 	d.EdgeDeletion(index1 - 1, tempTo); // SET EDGE DELETION
 	d.PrintAllRelations();
+}
+
+void UserInterface::TopSort()
+{
+	cout << "----------------" << endl << "Before TopSort:";
+	d.PrintAllTasks();
+	cout << "TopSorting........." << endl;
+	d.TopologicalSort();
+	d.PrintTopLinkedList();
 }
 
 
@@ -300,7 +367,7 @@ void UserInterface::Menu()
 	bool run = true;
 	char choice;
 	TaskInput();
-	
+
 	while (run) { //while user wants to edit data...
 		// menu statement
 		cout << "\nWhat would you like to do? \n 1. Add a new relation. \n 2. Delete a relation. \n 3. Topological Sort \n 4. Acyclic Check \n 5. Print Tasks and Relations \n 0. Exit.\n"; //TODO ; ADD OTHER RELATIONS
@@ -314,7 +381,7 @@ void UserInterface::Menu()
 			RelationDelete(); //if user enters 2, delete relation 
 			break;
 		case '3':
-			//TODO: ADD TOP SORT FUNCTION
+			TopSort();
 			break;
 		case '4':
 			//TODO: ADD ACYCLIC CHECK FUNCTION
@@ -325,7 +392,7 @@ void UserInterface::Menu()
 			break;
 		case '0':
 			//if user enters 0, print final relations and exit loop
-			cout << endl; 
+			cout << endl;
 			d.PrintAllRelations(1);
 			run = false; //break loop
 			break;
@@ -339,7 +406,7 @@ void UserInterface::Menu()
 }
 
 
-// END UI
+//-----------------------------------------------------------------------------------------------------------------------------------
 
 //START MAIN
 
