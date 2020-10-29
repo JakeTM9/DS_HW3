@@ -46,7 +46,7 @@ public:
 	void TopologicalSort(); //TopSort Recursive
 	void DFSOutTopLabel(vector<bool> &Mark, int v); //Topsort Recursive Helper Function
 	void PrintTopLinkedList();
-	Task* TopLinkedListHeader = new Task();
+	Task* TopList = new Task();
 	Task* TopLinkedListTail = new Task();
 
 	//void DFSOutTopLabel(Task TopList, int v);
@@ -175,8 +175,7 @@ void Digraph::EdgeDeletion(int index, string delLink)
 void Digraph::TopologicalSort() //Look at Page 233
 {
 	std::vector<bool> Mark(TaskSize, false);
-	int counter = TaskSize - 1;
-	for (int v = 0; v < TaskSize - 1; v++)
+	for (int v = 0; v < TaskSize; v++)
 	{
 		if (!Mark.at(v))
 		{
@@ -188,61 +187,70 @@ void Digraph::TopologicalSort() //Look at Page 233
 void Digraph::DFSOutTopLabel(vector<bool> &Mark, int v) // Look at Page 233's recursive function
 {
 	Mark.at(v) = true;
-	for (int w = 0; w < TaskSize - 1; w++)
+	for (int w = 0; w < TaskSize; w++)
 	{
-		if (TaskArray.at(w).next != nullptr)
+		// w is the vertex we are iterating through
+		// Edge from V to W
+		// if W is Marl.at(w) == false, recursivley call
+		Task* temp = TaskArray.at(v).next;
+		while (temp != nullptr)
 		{
-			if (TaskArray.at(v).next->name == TaskArray.at(w).name) //for each w in v st (v,w) spans E
+			if (temp->name == TaskArray.at(w).name) //for each w in v st (v,w) spans E
 			{
-				if (Mark.at(w) == false)
+		 		if (Mark.at(w) == false)
 				{
 					DFSOutTopLabel(Mark, w);
 				}
 			}
+			temp = temp->next;
 		}
 	}
 
 	//This is Where I'm messing up below (pretty sure above is all right)
 
-	Task* toAdd = new Task(TaskArray.at(v).name);
-	Task* temp = new Task();
-	Task* prev = new Task();
+	if (TopList->name == "")
+	{
+		TopList->name = TaskArray.at(v).name;
+	}
+	else
+	{
+		Task* toAdd = new Task(TaskArray.at(v).name);
+		Task* temp = TopList;
+		while (temp->next != nullptr)
+		{
+			temp = temp->next;
+		}
+		temp->next = toAdd;
+	}
+
 	
-	//Add temp to the linked list header is TopLinkedListHeader
-	if (TopLinkedListHeader->name == "")
-	{
-		TopLinkedListHeader->next = toAdd;
-	}
-	temp = TopLinkedListHeader;
-
-	while (temp->next != nullptr) 
-	{
-		prev = temp;
-		temp = temp->next;
-	}
-
-	toAdd->prev = prev;
-	toAdd->next = TopLinkedListTail;
-	TopLinkedListTail->prev = toAdd;
-	delete(temp);
-	delete(prev);
 
 }
 
 void Digraph::PrintTopLinkedList()
 {
-	Task* temp = TopLinkedListHeader;
+	/*Task* temp = TopList;
 	while (temp->prev != nullptr)
 	{
 		temp = temp->prev;
 	}
+	
+	while (temp->next != nullptr)
+	{
+		cout << temp->name << ", ";
+		temp = temp->next;
+	}
+	cout << temp->name;*/
 	cout << "TopSorted Order:" << endl;
+
+	Task* temp = TopList;
 	while (temp->next != nullptr)
 	{
 		cout << temp->name << ", ";
 		temp = temp->next;
 	}
 	cout << temp->name;
+
 
 }
 
